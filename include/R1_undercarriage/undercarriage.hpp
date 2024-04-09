@@ -5,13 +5,13 @@
 #include "robomas_plugins/msg/robomas_target.hpp"
 
 namespace constant{
-    constexpr uint8_t motor = 0;
+    // constexpr uint8_t motor = 0;
     constexpr bool c620 = false;
     //mode
     constexpr uint8_t temp = 50;
-    constexpr float velkp = 0;
-    constexpr float velki = 0;
-    constexpr float poskp = 0;
+    constexpr float velkp = 0.15;
+    constexpr float velki = 9;
+    constexpr float poskp = 0.5;
     constexpr float tyoku_vel_target = 0;
     constexpr float tyoku_pos_target = 0;
     constexpr float stable_pos_limit_vel = 0;
@@ -104,7 +104,26 @@ class undercarriage{
     return std::make_unique<robomas_plugins::msg::RobomasTarget>(TARGET_FRAME);
     }
     void make_mode(motor_mode motor_state);//modeを設定
-    std::unique_ptr<robomas_plugins::msg::RobomasFrame> update(float x,float y,turn_direction turn_dir);//他の関数を全部融合させた
+    void update(float x,float y,turn_direction turn_dir);//他の関数を全部融合させた
+    std::unique_ptr<robomas_plugins::msg::RobomasFrame> make_setting_frame(uint8_t motor_number){
+        robomas_plugins::msg::RobomasFrame undercarriage_frame;
+        undercarriage_frame.motor = motor_number;
+        undercarriage_frame.temp = constant::temp;
+        undercarriage_frame.c620 = constant::c620;
+        if(MODE == motor_mode::velocity){
+         undercarriage_frame.mode = 1;
+        }
+        else if(MODE == motor_mode::disable){
+            undercarriage_frame.mode = 0;
+        }
+        undercarriage_frame.velkp = constant::velkp;
+        undercarriage_frame.velki = constant::velki;
+        undercarriage_frame.poskp = constant::poskp;
+        undercarriage_frame.tyoku_vel_target = constant::tyoku_vel_target;
+        undercarriage_frame.tyoku_pos_target = constant::tyoku_pos_target;
+        undercarriage_frame.stable_pos_limit_vel = constant::stable_pos_limit_vel;
+        return make_unique<robomas_plugins::msg::RobomasFrame>(undercarriage_frame);
+    }
 };
 
 inline void undercarriage::set_direction(float x,float y){
@@ -181,26 +200,14 @@ inline void undercarriage::make_mode(motor_mode motor_state){
     this->MODE = motor_state;
 }
 
-inline std::unique_ptr<robomas_plugins::msg::RobomasFrame> undercarriage::update(float x,float y,turn_direction turn_dir)
+inline void undercarriage::update(float x,float y,turn_direction turn_dir)
 {
     this->set_direction(x,y);
     this->set_motor_power(turn_dir);
-    robomas_plugins::msg::RobomasFrame undercarriage_frame;
-    undercarriage_frame.temp = constant::temp;
-    undercarriage_frame.c620 = constant::c620;
-    if(MODE == motor_mode::velocity){
-        undercarriage_frame.mode = 1;
-    }
-    else if(MODE == motor_mode::disable){
-        undercarriage_frame.mode = 0;
-    }
-    undercarriage_frame.velkp = constant::velkp;
-    undercarriage_frame.velki = constant::velki;
-    undercarriage_frame.poskp = constant::poskp;
-    undercarriage_frame.tyoku_vel_target = constant::tyoku_vel_target;
-    undercarriage_frame.tyoku_pos_target = constant::tyoku_pos_target;
-    undercarriage_frame.stable_pos_limit_vel = constant::stable_pos_limit_vel;
-    return make_unique<robomas_plugins::msg::RobomasFrame>(undercarriage_frame);
+
+
 }
+
+
 
 

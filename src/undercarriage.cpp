@@ -20,10 +20,10 @@ public:
     subscription_ = this->create_subscription<sensor_msgs::msg::Joy>(
       "joy", 10, std::bind(&Undercarriage_Node::topic_callback, this, _1));
     robomas_pub_setting_ = this->create_publisher<robomas_plugins::msg::RobomasFrame>("robomas_frame", 10);
-    robomas_pub_right_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target1", 10);
-    robomas_pub_left_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target2", 10);
-    robomas_pub_left_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target3", 10);
-    robomas_pub_right_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target4", 10);
+    robomas_pub_right_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target0", 10);
+    robomas_pub_left_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target1", 10);
+    robomas_pub_left_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target2", 10);
+    robomas_pub_right_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target3", 10);
   }
   
 
@@ -39,19 +39,25 @@ private:
 ///////////////////////////////ここの上がstartボタン、backボタンによるmodeの調整
 ///////////////////////////////ここの下から平行移動、回転をするための個々のモーターのターゲットを決めるif文
     if(msg.axes[2] == -1){//ZL(left shouldderボタン)
-        robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.update(-msg.axes[0],msg.axes[1],turn_direction::left_turn)));
+        this->NHK_2024_R1.update(-msg.axes[0],msg.axes[1],turn_direction::left_turn);
     }//left turn
     else if(msg.axes[5] == -1){//ZR(right shouldderボタン)
-        robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.update(-msg.axes[0],msg.axes[1],turn_direction::right_turn)));
+        this->NHK_2024_R1.update(-msg.axes[0],msg.axes[1],turn_direction::right_turn);
     }//right turn
     else{
-        robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.update(-msg.axes[0],msg.axes[1],turn_direction::no_turn)));
+        this->NHK_2024_R1.update(-msg.axes[0],msg.axes[1],turn_direction::no_turn);
     }//平行移動//x軸はjoyの入力時点で反転していた
 /////////////////////////////ここの下からは、上で決めたターゲットをシラスに向かって送ってあげる関数
   robomas_pub_right_front_->publish(std::move(this->NHK_2024_R1.make_robomas_Frame(motor_name::right_front_motor)));
   robomas_pub_right_back_->publish(std::move(this->NHK_2024_R1.make_robomas_Frame(motor_name::right_back_motor)));
   robomas_pub_left_front_->publish(std::move(this->NHK_2024_R1.make_robomas_Frame(motor_name::left_front_motor)));
   robomas_pub_left_back_->publish(std::move(this->NHK_2024_R1.make_robomas_Frame(motor_name::left_back_motor)));
+
+  //////////////////////////////////////////////////////////////////////
+  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(0)));
+  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(1)));
+  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(2)));
+  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(3)));
 }
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr subscription_;
   rclcpp::Publisher<robomas_plugins::msg::RobomasFrame>::SharedPtr robomas_pub_setting_;
