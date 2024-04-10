@@ -134,8 +134,8 @@ inline void undercarriage::set_direction(float x,float y){
 
 
 inline void undercarriage::set_motor_power(turn_direction turn_dir){
-    constexpr float MAX_OF_TARGET = 20.0;
-    constexpr float TURN_TARGET = 5.0;
+    constexpr float MAX_OF_TARGET = 943.0;
+    constexpr float TURN_TARGET = 50.0;
     //多分TARGETの最大値になるはず
     float RF_TARGET = 0;
     float LF_TARGET = 0;
