@@ -21,9 +21,9 @@ public:
       "joy", 10, std::bind(&Undercarriage_Node::topic_callback, this, _1));
     robomas_pub_setting_ = this->create_publisher<robomas_plugins::msg::RobomasFrame>("robomas_frame", 10);
     robomas_pub_right_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target0", 10);
-    robomas_pub_left_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target1", 10);
-    robomas_pub_left_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target2", 10);
-    robomas_pub_right_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target3", 10);
+    robomas_pub_left_front_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target2", 10);
+    robomas_pub_left_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target3", 10);
+    robomas_pub_right_back_ = this->create_publisher<robomas_plugins::msg::RobomasTarget>("robomas_target1", 10);
   }
   
 
@@ -32,9 +32,17 @@ private:
   {  
     if(msg.buttons[7]){//startボタン
       NHK_2024_R1.make_mode(motor_mode::velocity);
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(0)));
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(1)));
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(2)));
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(3)));
     }//mode velにする
     if(msg.buttons[6]){//backボタン
       NHK_2024_R1.make_mode(motor_mode::disable);
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(0)));
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(1)));
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(2)));
+      robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(3)));
     }//mode disにする
 ///////////////////////////////ここの上がstartボタン、backボタンによるmodeの調整
 ///////////////////////////////ここの下から平行移動、回転をするための個々のモーターのターゲットを決めるif文
@@ -54,10 +62,7 @@ private:
   robomas_pub_left_back_->publish(std::move(this->NHK_2024_R1.make_robomas_Frame(motor_name::left_back_motor)));
 
   //////////////////////////////////////////////////////////////////////
-  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(0)));
-  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(1)));
-  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(2)));
-  robomas_pub_setting_->publish(std::move(this->NHK_2024_R1.make_setting_frame(3)));
+
 }
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr subscription_;
   rclcpp::Publisher<robomas_plugins::msg::RobomasFrame>::SharedPtr robomas_pub_setting_;
